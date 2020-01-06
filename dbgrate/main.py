@@ -2,6 +2,13 @@ import click
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import importlib
+from os.path import basename, isfile, join
+import glob
+from datetime import datetime
+from mako.template import Template
+from os.path import dirname, realpath
+from os import makedirs, errno
 
 engine = None
 session = None
@@ -17,7 +24,6 @@ class Migration(Base):
 
 
 def init_migrations():
-    from os import makedirs, errno
 
     try:
         makedirs('migrations')
@@ -27,8 +33,6 @@ def init_migrations():
 
 
 def get_migrations():
-    from os.path import dirname, basename, isfile, join
-    import glob
     modules = glob.glob(join(dirname(__file__), "migrations", "*.py"))
     __all__ = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
 
@@ -36,7 +40,6 @@ def get_migrations():
 
 
 def run_migrations(action, message='Applying migration', status='APPLIED', migration=None):
-    import importlib
     migrations = get_migrations()
     if migration:
         print('Filtering list to include only {}'.format(migration))
@@ -69,7 +72,7 @@ def main():
 def db():
     global engine, session
     print('Importing database env...')
-    import env
+    importlib.import_module('env')
     init_migrations()
     engine = create_engine('sqlite:///migrations/migrations.sqlite')
     Base.metadata.create_all(engine)
@@ -100,9 +103,6 @@ def downgrade(name):
 @main.command()
 @click.argument('name')
 def generate(name):
-    from datetime import datetime
-    from mako.template import Template
-    from os.path import dirname, realpath
 
     init_migrations()
 

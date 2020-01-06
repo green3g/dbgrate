@@ -2,5 +2,8 @@ dist/
 build/
 migrations/
 pro_project/
-*.egg-info/
 __pycache__/
+
+
+*.egg-info/
+*.sqlite
