@@ -8,7 +8,12 @@ import glob
 from datetime import datetime
 from mako.template import Template
 from os.path import dirname, realpath
-from os import makedirs, errno
+from os import makedirs, errno, getcwd
+
+# modify the local path so we can import our env.py
+from sys import path
+WORKING_DIR = getcwd()
+path.append(WORKING_DIR)
 
 engine = None
 session = None
@@ -33,7 +38,7 @@ def init_migrations():
 
 
 def get_migrations():
-    modules = glob.glob(join(dirname(__file__), "migrations", "*.py"))
+    modules = glob.glob(join(WORKING_DIR, "migrations", "*.py"))
     __all__ = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
 
     return __all__
@@ -55,7 +60,7 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
             print('Migration has already been set to {}, skipping'.format(status))
             pass
 
-        i = importlib.import_module('migrations.{}'.format(migration))
+        i = importlib.import_module('.'.join(['migrations', migration]))
         action(i)
         current_migration.status = status;
         session.add(current_migration)
