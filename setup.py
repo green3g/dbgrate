@@ -13,6 +13,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        dbgrate=main:cli
+        dbgrate=dbgrate.main:cli
     '''
 )
