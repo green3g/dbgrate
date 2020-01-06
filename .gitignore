@@ -1,0 +1,6 @@
+dist/
+build/
+migrations/
+pro_project/
+*.egg-info/
+__pycache__/
