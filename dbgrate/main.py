@@ -74,7 +74,7 @@ def db():
     print('Importing database env...')
     importlib.import_module('env')
     init_migrations()
-    engine = create_engine('sqlite:///migrations/migrations.sqlite')
+    engine = create_engine(join('sqlite:///migrations', 'migrations.sqlite'))
     Base.metadata.create_all(engine)
     Session = sessionmaker()
     Session.configure(bind=engine)
