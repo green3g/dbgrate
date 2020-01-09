@@ -48,6 +48,7 @@ def get_migrations():
 
 def run_migrations(action, message='Applying migration', status='APPLIED', migration=None, reverse=False):
     migrations = get_migrations()
+    print('-'*60)
 
     # handle downgrades
     if reverse:
@@ -61,6 +62,7 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
     print('Found migrations: ', migrations)
 
     for m in migrations:
+        print('-'*60)
         print('{} {}...'.format(message, m))
 
         # get or create a migration orm object
@@ -93,6 +95,7 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
             print('Migration has finished up to {}. Migration process will now complete.'.format(migration))
             break
 
+    print('-'*60)
     print('Committing migration updates...')
     session.commit()
     print('Migration complete')
