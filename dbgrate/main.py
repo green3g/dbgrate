@@ -49,7 +49,7 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
 
     # handle downgrades
     if reverse:
-        migrations = migrations.reverse()
+        migrations.reverse()
 
     # handle individual migrations
     if migration:
