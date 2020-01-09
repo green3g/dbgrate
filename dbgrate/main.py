@@ -115,7 +115,7 @@ def downgrade(name):
     def action(migration):
         migration.downgrade()
 
-    run_migrations(action, 'Downgrading migration', 'REMOVED', migration=name)
+    run_migrations(action, 'Downgrading migration', 'REMOVED', migration=name, reverse=True)
 
 
 @main.command()
