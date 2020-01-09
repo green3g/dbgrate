@@ -54,19 +54,19 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
         migrations.reverse()
 
     # handle individual migrations
-    if migration and not migration in migrations:
-        print('Error: The migration {} was not found in the list of migrations. No actions were completed'.format(migration))
+    if migration and migration not in migrations:
+        print('Error: The migration {} was not found in the list of migrations. No actions were completed'.format(m))
         print('Available migrations are: {}'.format(' ,'.join(migrations)))
         return
     print('Found migrations: ', migrations)
 
-    for migration in migrations:
-        print('{} {}...'.format(message, migration))
+    for m in migrations:
+        print('{} {}...'.format(message, m))
 
         # get or create a migration orm object
-        current_migration = session.query(Migration).filter_by(name=migration).first()
+        current_migration = session.query(Migration).filter_by(name=m).first()
         if not current_migration:
-            current_migration = Migration(name=migration)
+            current_migration = Migration(name=m)
 
         # skip if it the status is already upgraded
         if current_migration.status == status:
@@ -75,11 +75,11 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
         
         # import it and run it
         try:
-            i = importlib.import_module('.'.join(['migrations', migration]))
+            i = importlib.import_module('.'.join(['migrations', m]))
             action(i)
         except:
             print('-'*60)
-            print('Error in migration {}'.format(migration))
+            print('Error in migration {}'.format(m))
             print_exc(file=stdout)
             print('-'*60)
             break
