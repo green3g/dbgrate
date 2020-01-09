@@ -9,6 +9,8 @@ from datetime import datetime
 from mako.template import Template
 from os.path import dirname, realpath
 from os import makedirs, errno, getcwd
+from traceback import print_exc
+from sys import stdout
 
 # modify the local path so we can import our env.py
 from sys import path
@@ -52,9 +54,10 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
         migrations.reverse()
 
     # handle individual migrations
-    if migration:
-        print('Filtering list to include only {}'.format(migration))
-        migrations = [m for m in migrations if m == migration]
+    if migration and not migration in migrations:
+        print('Error: The migration {} was not found in the list of migrations. No actions were completed'.format(migration))
+        print('Available migrations are: {}'.format(' ,'.join(migrations)))
+        return
     print('Found migrations: ', migrations)
 
     for migration in migrations:
@@ -71,14 +74,28 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
             continue
         
         # import it and run it
-        i = importlib.import_module('.'.join(['migrations', migration]))
-        action(i)
+        try:
+            i = importlib.import_module('.'.join(['migrations', migration]))
+            action(i)
+        except:
+            print('-'*60)
+            print('Error in migration {}'.format(migration))
+            print_exc(file=stdout)
+            print('-'*60)
+            break
 
         # update database of migrations
         current_migration.status = status;
         session.add(current_migration)
         print('Migration was successful.')
+
+        if migration and current_migration.name == migration:
+            print('Migration has finished up to {}. Migration process will now complete.'.format(migration))
+            break
+
+    print('Committing migration updates...')
     session.commit()
+    print('Migration complete')
 
 
 @click.group()
