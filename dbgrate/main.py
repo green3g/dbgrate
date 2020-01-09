@@ -44,8 +44,14 @@ def get_migrations():
     return __all__
 
 
-def run_migrations(action, message='Applying migration', status='APPLIED', migration=None):
+def run_migrations(action, message='Applying migration', status='APPLIED', migration=None, reverse=False):
     migrations = get_migrations()
+
+    # handle downgrades
+    if reverse:
+        migrations = migrations.reverse()
+
+    # handle individual migrations
     if migration:
         print('Filtering list to include only {}'.format(migration))
         migrations = [m for m in migrations if m == migration]
@@ -53,15 +59,22 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
 
     for migration in migrations:
         print('{} {}...'.format(message, migration))
+
+        # get or create a migration orm object
         current_migration = session.query(Migration).filter_by(name=migration).first()
         if not current_migration:
             current_migration = Migration(name=migration)
+
+        # skip if it the status is already upgraded
         if current_migration.status == status:
             print('Migration has already been set to {}, skipping'.format(status))
             continue
-
+        
+        # import it and run it
         i = importlib.import_module('.'.join(['migrations', migration]))
         action(i)
+
+        # update database of migrations
         current_migration.status = status;
         session.add(current_migration)
         print('Migration was successful.')
