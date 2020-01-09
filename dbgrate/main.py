@@ -58,7 +58,7 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
             current_migration = Migration(name=migration)
         if current_migration.status == status:
             print('Migration has already been set to {}, skipping'.format(status))
-            pass
+            continue
 
         i = importlib.import_module('.'.join(['migrations', migration]))
         action(i)
