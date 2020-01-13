@@ -105,6 +105,9 @@ def main():
 
 @main.group('db')
 def db():
+    """
+    Run database commands: upgrade, downgrade.
+    """
     global engine, session
     print('Importing database env...')
     importlib.import_module('env')
@@ -120,6 +123,9 @@ def db():
 @db.command()
 @click.option('--name', default=None, help='Migration ID to run')
 def upgrade(name):
+    """
+    Run the upgrade action of one or all migrations. Specify `NAME` for upgrading one migration. 
+    """
     def action(migration):
         migration.upgrade()
 
@@ -129,6 +135,9 @@ def upgrade(name):
 @db.command()
 @click.option('--name', default=None, help='Migration ID to run')
 def downgrade(name):
+    """
+    Run the downgrade action of one or all migrations. Specify `NAME` for downgrading one migration. 
+    """
     def action(migration):
         migration.downgrade()
 
@@ -138,6 +147,9 @@ def downgrade(name):
 @main.command()
 @click.argument('name')
 def generate(name):
+    """
+    Generate a new migrations file. Migrations will be prefixed with a timestamp.
+    """
 
     init_migrations()
 
