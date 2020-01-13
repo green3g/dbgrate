@@ -147,7 +147,7 @@ def generate(name):
     print('generating migration migrations/{}'.format(file_name))
 
     # get the template content
-    template_path = '{}/templates/migration.py.mako'.format(dirname(realpath(__file__)))
+    template_path = join(dirname(realpath(__file__)), 'templates', 'migration.py.mako')
     with open(template_path, 'r') as f:
         template = f.read()
 
