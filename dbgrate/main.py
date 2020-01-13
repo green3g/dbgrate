@@ -141,7 +141,9 @@ def generate(name):
 
     init_migrations()
 
-    timestamp = str(datetime.now().timestamp()).replace('.', '_')
+    timestamp = str(datetime.now().timestamp())
+        .replace('.', '_')
+        .replace(' ', '_')
     comment = click.prompt('Comment')
     file_name = '{}_{}.py'.format(timestamp, name.replace('.', '_'))
     print('generating migration migrations/{}'.format(file_name))
