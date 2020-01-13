@@ -1,13 +1,12 @@
 import click
+import importlib
+import glob
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import importlib
-from os.path import basename, isfile, join
-import glob
 from datetime import datetime
 from mako.template import Template
-from os.path import dirname, realpath
+from os.path import dirname, realpath, basename, isfile, join
 from os import makedirs, errno, getcwd
 from traceback import print_exc
 from sys import stdout
@@ -153,7 +152,7 @@ def generate(name):
         template = f.read()
 
     # write it to a migration file
-    with open('migrations/{}'.format(file_name), 'w') as f:
+    with open(join('migrations', file_name), 'w') as f:
         content = Template(template).render(
             create_date=datetime.now().ctime(),
             comment=comment,
