@@ -80,10 +80,8 @@ def run_migrations(action, message='Applying migration', status='APPLIED', migra
             i = importlib.import_module('.'.join(['migrations', m]))
             action(i)
         except:
-            print('-'*60)
-            print('Error in migration {}'.format(m))
+            print('Error while executing migration!')
             print_exc(file=stdout)
-            print('-'*60)
             break
 
         # update database of migrations
