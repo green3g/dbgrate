@@ -39,6 +39,14 @@ def init_migrations():
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
+    
+    # create init.py
+    template_path = join(PACKAGE_DIR, 'templates', 'init.py.mako')
+    with open(template_path, 'r') as f:
+        template = f.read()
+        with open(join('migrations', '__init__.py'), 'w') as f:
+            content = Template(template).render()
+            f.write(content)
 
 
 def get_migrations():
@@ -174,13 +182,6 @@ def generate(name):
         )
         f.write(content)
 
-    # create init.py
-    template_path = join(PACKAGE_DIR, 'templates', 'init.py.mako')
-    with open(template_path, 'r') as f:
-        template = f.read()
-        with open(join('migrations', '__init__.py'), 'w') as f:
-            content = Template(template).render()
-            f.write(content)
 
 cli = click.CommandCollection(sources=[main])
 if __name__ == '__main__':
