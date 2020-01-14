@@ -18,6 +18,7 @@ path.append(WORKING_DIR)
 print('dbgrate: Current working directory is {}'.format(WORKING_DIR))
 
 PACKAGE_DIR = dirname(realpath(__file__))
+DEFAULT_MIGRATIONS_DB = join('sqlite:///migrations', 'migrations.sqlite')
 
 engine = None
 session = None
@@ -36,7 +37,7 @@ def init_migrations():
     if not isdir(join(WORKING_DIR, 'migrations')):
         print('Initializing migrations directory...')
         try:
-            makedirs('migrations')
+            makedirs(join(WORKING_DIR, 'migrations'))
         except Exception as e:
             print('Error initializing migrations:')
             print(e)
@@ -125,9 +126,7 @@ def db():
     global engine, session
     print('Importing database env...')
     env = importlib.import_module('env')
-    db = getattr(env, 'DB_CONNECTION_URL')
-    if not db:
-        db = join('sqlite:///migrations', 'migrations.sqlite')
+    db = getattr(env, 'DB_CONNECTION_URL', DEFAULT_MIGRATIONS_DB)
     init_migrations()
     engine = create_engine(db)
     Base.metadata.create_all(engine)
