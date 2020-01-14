@@ -7,3 +7,6 @@ __pycache__/
 
 *.egg-info/
 *.sqlite
+
+.vscode/
+.idea/
