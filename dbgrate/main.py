@@ -15,6 +15,7 @@ from sys import stdout
 from sys import path
 WORKING_DIR = getcwd()
 path.append(WORKING_DIR)
+print('dbgrate: Current working directory is {}'.format(WORKING_DIR))
 
 engine = None
 session = None
