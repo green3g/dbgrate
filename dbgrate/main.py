@@ -41,7 +41,7 @@ def init_migrations():
             raise
     
     # create init.py
-    template_path = join(PACKAGE_DIR, 'templates', 'init.py.mako')
+    template_path = join(PACKAGE_DIR, 'templates', '__init__.py.mako')
     with open(template_path, 'r') as f:
         template = f.read()
         with open(join('migrations', '__init__.py'), 'w') as f:
@@ -121,9 +121,12 @@ def db():
     """
     global engine, session
     print('Importing database env...')
-    importlib.import_module('env')
+    env = importlib.import_module('env')
+    db = getattr(env, 'DB_CONNECTION_URL')
+    if not db:
+        db = join('sqlite:///migrations', 'migrations.sqlite')
     init_migrations()
-    engine = create_engine(join('sqlite:///migrations', 'migrations.sqlite'))
+    engine = create_engine(db)
     Base.metadata.create_all(engine)
     Session = sessionmaker()
     Session.configure(bind=engine)
