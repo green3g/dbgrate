@@ -17,6 +17,8 @@ WORKING_DIR = getcwd()
 path.append(WORKING_DIR)
 print('dbgrate: Current working directory is {}'.format(WORKING_DIR))
 
+PACKAGE_DIR = dirname(realpath(__file__))
+
 engine = None
 session = None
 
@@ -172,6 +174,13 @@ def generate(name):
         )
         f.write(content)
 
+    # create init.py
+    template_path = join(PACKAGE_DIR, 'templates', 'init.py.mako')
+    with open(template_path, 'r') as f:
+        template = f.read()
+        with open(join('migrations', '__init__.py'), 'w') as f:
+            content = Template(template).render()
+            f.write(content)
 
 cli = click.CommandCollection(sources=[main])
 if __name__ == '__main__':
