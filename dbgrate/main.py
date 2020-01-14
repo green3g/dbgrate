@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from mako.template import Template
-from os.path import dirname, realpath, basename, isfile, join
+from os.path import dirname, realpath, basename, isfile, join, exists, isdir
 from os import makedirs, errno, getcwd
 from traceback import print_exc
 from sys import stdout
@@ -33,20 +33,23 @@ class Migration(Base):
 
 
 def init_migrations():
-
-    try:
-        makedirs('migrations')
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            raise
+    if not isdir(join(WORKING_DIR, 'migrations')):
+        print('Initializing migrations directory...')
+        try:
+            makedirs('migrations')
+        except Exception as e:
+            print('Error initializing migrations:')
+            print(e)
     
     # create init.py
-    template_path = join(PACKAGE_DIR, 'templates', '__init__.py.mako')
-    with open(template_path, 'r') as f:
-        template = f.read()
-        with open(join('migrations', '__init__.py'), 'w') as f:
-            content = Template(template).render()
-            f.write(content)
+    if not exists(join(WORKING_DIR, 'migrations', '__init__.py')):
+        print('Initializing __init__.py migrations package...')
+        template_path = join(PACKAGE_DIR, 'templates', '__init__.py.mako')
+        with open(template_path, 'r') as f:
+            template = f.read()
+            with open(join('migrations', '__init__.py'), 'w') as f:
+                content = Template(template).render()
+                f.write(content)
 
 
 def get_migrations():
