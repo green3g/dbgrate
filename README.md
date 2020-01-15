@@ -54,9 +54,9 @@ run any python you want inside of these functions. You can also
 access the sqlalchemy engine if you so choose to. Simply define
 the parameter you want, and it will be passed to your function.
 
-`engine` - The sqlalchemy [engine](https://docs.sqlalchemy.org/en/13/core/engines.html?highlight=create_engine#sqlalchemy.create_engine)
-`sesssion` - Sqalchemy [session](https://docs.sqlalchemy.org/en/13/orm/session_basics.html#what-does-the-session-do)
-`env` - The env module YOU defined. You can put any data in here you want to be accessible to your migrations.
+ - `engine` - The sqlalchemy [engine](https://docs.sqlalchemy.org/en/13/core/engines.html?highlight=create_engine#sqlalchemy.create_engine)
+ - `sesssion` - Sqalchemy [session](https://docs.sqlalchemy.org/en/13/orm/session_basics.html#what-does-the-session-do)
+ - `env` - The env module YOU defined. You can put any data in here you want to be accessible to your migrations.
 
 ```python
 
