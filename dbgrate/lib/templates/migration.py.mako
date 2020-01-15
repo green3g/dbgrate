@@ -1,6 +1,10 @@
-"""${comment}
+"""
+${comment}
 
+Author: ${author}
 Create Date: ${create_date}
+
+Notice: Migration auto-generated using dbgrate
 
 """
 

@@ -11,9 +11,11 @@ db = env.str('DB_NAME', default='inspect_sde')
 host = env.str('DB_HOST', default='gisdata.com')
 schema = env.str('DB_SCHEMA', default='dbo')
 
-DB_CONNECTION_URL = 'postgresql://{username}:{password}@{host}:5432/{db}'.format(
-    db=db,
-    password=password,
-    username=username,
-    host=host,
-)
+# DB_CONNECTION_URL = 'postgresql://{username}:{password}@{host}:5432/{db}'.format(
+#     db=db,
+#     password=password,
+#     username=username,
+#     host=host,
+# )
+
+DB_CONNECTION_URL = 'sqlite:///migrations/custom-migrations.sqlite'
