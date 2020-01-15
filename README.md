@@ -22,7 +22,7 @@ Tip: Use git to version these files.
 
 
 ### CLI
-```
+```sh
 # install
 pip install https://github.com/roemhildtg/dbgrate/archive/master.zip
 
