@@ -20,6 +20,8 @@ will be stored in the directory `migrations/migrations.sqlite`.
 
 Tip: Use git to version these files.
 
+
+### CLI
 ```
 # install
 pip install https://github.com/roemhildtg/dbgrate/archive/master.zip
@@ -44,3 +46,47 @@ dbgrate db downgrade
 # downgrade to a specific migration
 dbgrate db downgrade --name 1234_migration_name
 ```
+
+### Migration files
+
+Each migration file has an upgrade and downgrade method. You can 
+run any python you want inside of these functions. You can also
+access the sqlalchemy engine if you so choose to. Simply define
+the parameter you want, and it will be passed to your function.
+
+`engine` - The sqlalchemy [engine](https://docs.sqlalchemy.org/en/13/core/engines.html?highlight=create_engine#sqlalchemy.create_engine)
+`sesssion` - Sqalchemy [session](https://docs.sqlalchemy.org/en/13/orm/session_basics.html#what-does-the-session-do)
+`env` - The env module YOU defined. You can put any data in here you want to be accessible to your migrations.
+
+```python
+
+
+from sqlalchemy import Table, Column, Integer, String, MetaData
+
+meta = MetaData()
+
+account = Table(
+    'account', meta,
+    Column('id', Integer, primary_key=True),
+    Column('login', String(40)),
+    Column('passwd', String(40)),
+)
+
+# engine gets passed to the method
+def upgrade(engine):
+    meta.bind = engine
+    account.create()
+
+
+def downgrade(engine):
+    meta.bind = engine
+    account.drop()
+
+```
+
+## Why?
+
+Why another migration tool? 
+
+1. The learning experience. Building a migration tool has allowed me to learn about file generators, database communication, version management, etc. 
+2. I didn't see a easy to use tool that would be flexible enough. I wanted a migrations tool that didn't force me to use an ORM model or even sql. This tool is generic enough to use even with non sql databases. That being said, it doesn't do anything for you other than assist with the migration generation and the actual migration steps. 
