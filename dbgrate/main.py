@@ -15,7 +15,7 @@ DEFAULT_MIGRATIONS_DB = join('sqlite:///migrations', 'migrations.sqlite')
 
 CONTEXT={
     'obj': {
-        'workspace': None,
+        'MIGRATIONS': None,
     },
 }
 
@@ -68,7 +68,7 @@ def downgrade(ctx, name):
 def generate(ctx, name):
     comment = click.prompt('Comment')
     author = environ.get('USER') or environ.get('USERNAME')
-    generate_migration(ctx.obj['workspace'], name, {
+    generate_migration(WORKING_DIR, name, {
         'comment': comment,
         'author': author,
     })

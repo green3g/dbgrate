@@ -1,1 +1,1 @@
-recursive-include dbgrate/templates *.mako *.py
+recursive-include dbgrate/lib/templates *.mako *.py
