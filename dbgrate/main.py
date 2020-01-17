@@ -21,7 +21,7 @@ CONTEXT={
 }
 
 @click.group(context_settings=CONTEXT)
-@click.option('--log', default='ERROR', help='Set the log level. DEBUG, INFO, WARNING, ERROR.')
+@click.option('--log', default='INFO', help='Set the log level. DEBUG, INFO, WARNING, ERROR.')
 def cli(log):
     level = getattr(logging, log.upper())
     logging.basicConfig(level=level)
@@ -43,7 +43,7 @@ def db(ctx):
 
 
 @db.command()
-@click.option('--name', default=None, help='Migration ID to run')
+@click.option('--name', default=None, help='Upgrade to specific migration version')
 @click.pass_context
 def upgrade(ctx, name):
     """
@@ -55,7 +55,7 @@ def upgrade(ctx, name):
 
 
 @db.command()
-@click.option('--name', default=None, help='Migration ID to run')
+@click.option('--name', default=None, help='Downgrade to specific migration version')
 @click.pass_context
 def downgrade(ctx, name):
     """
@@ -68,13 +68,15 @@ def downgrade(ctx, name):
 
 
 @cli.command()
-@click.argument('name')
+@click.option('--name', default=None, help='Migration name')
+@click.option('--comment', default=None, help='Comment text for migration.')
 @click.pass_context
-def generate(ctx, name):
+def generate(ctx, name=None, comment=None):
     """
-    Generate a new database migration item in the local ./migrations folder. 
+    Generate a new database migration file
     """
-    comment = click.prompt('Comment')
+    name = name or click.prompt('Migration name')
+    comment = comment or click.prompt('Comment')
     author = environ.get('USER') or environ.get('USERNAME')
     generate_migration(WORKING_DIR, name, {
         'comment': comment,

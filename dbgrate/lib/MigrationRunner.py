@@ -102,7 +102,7 @@ class MigrationRunner(object):
                 if fn:
                     args = self.get_migration_args(fn)
                     fn(**args)
-            except Exception as e:
+            except Exception:
                 result['error'].append(m)
                 logging.traceback.print_exc(file=stdout)
                 logging.error('Error while executing migration {}!'.format(m))

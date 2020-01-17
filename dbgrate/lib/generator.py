@@ -51,3 +51,6 @@ def generate_migration(workspace, name, data={}):
     with open(join('migrations', file_name), 'w') as f:
         content = Template(template).render(**data)
         f.write(content)
+
+    logging.info('Created new migration file migrations/{}'.format(file_name))
+    return file_name
