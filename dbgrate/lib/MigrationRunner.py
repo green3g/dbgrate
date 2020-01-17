@@ -18,6 +18,7 @@ from .constants import PACKAGE_DIR
 class MigrationRunner(object):
     def __init__(self, env, db_uri, workspace):
 
+        logging.debug('Using db connection: {}'.format(db_uri))
         self.engine = create_engine(db_uri)
         Base.metadata.create_all(self.engine)
         Session = sessionmaker()
@@ -27,6 +28,7 @@ class MigrationRunner(object):
         self.env = env 
 
         # update the path so we can import migrations
+        logging.debug('Using workspace: {}'.format(workspace))
         self.workspace = workspace
         
 
@@ -58,6 +60,7 @@ class MigrationRunner(object):
         spec = getargspec(fn)
         args = {}
         for arg in spec.args:
+            logging.debug('Adding argument: {}.'.format(arg))
             args[arg] = getattr(self, arg)
             
         return args

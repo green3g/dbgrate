@@ -14,54 +14,50 @@ path.append(WORKING_DIR)
 
 DEFAULT_MIGRATIONS_DB = join('sqlite:///migrations', 'migrations.sqlite')
 
-CONTEXT={
-    'obj': {
-        'MIGRATIONS': None,
-    },
-}
 
-@click.group(context_settings=CONTEXT)
+@click.group()
 @click.option('--log', default='INFO', help='Set the log level. DEBUG, INFO, WARNING, ERROR.')
 def cli(log):
     level = getattr(logging, log.upper())
     logging.basicConfig(level=level)
 
 
-@cli.group('db', context_settings=CONTEXT)
-@click.pass_context
-def db(ctx):
+@cli.group('db')
+def db():
     """
     Run database commands: upgrade, downgrade.
     """
+    pass
+
+def get_runner():
     logging.info('Importing database env...')
     env = import_module('env')
     db = getattr(env, 'DB_CONNECTION_URL', DEFAULT_MIGRATIONS_DB)
 
-    # set the migrations context variable for the next command 
-    ctx.obj['MIGRATIONS'] = MigrationRunner(env, db, WORKING_DIR)
     logging.info('Database env imported')
+
+    # set the migrations context variable for the next command 
+    return MigrationRunner(env, db, WORKING_DIR)
 
 
 @db.command()
 @click.option('--name', default=None, help='Upgrade to specific migration version')
-@click.pass_context
-def upgrade(ctx, name):
+def upgrade(name):
     """
     Run the upgrade action of one or all migrations. Specify `NAME` for upgrading one migration. 
     """
-    migrations = ctx.obj['MIGRATIONS']
+    migrations = get_runner()
     result = migrations.upgrade(name)
     exit(len(result['error']))
 
 
 @db.command()
 @click.option('--name', default=None, help='Downgrade to specific migration version')
-@click.pass_context
-def downgrade(ctx, name):
+def downgrade(name):
     """
     Run the downgrade action of one or all migrations. Specify `NAME` for downgrading one migration. 
     """
-    migrations = ctx.obj['MIGRATIONS']
+    migrations = get_runner()
     result = migrations.downgrade(name)
     exit(len(result['error']))
 
@@ -70,8 +66,7 @@ def downgrade(ctx, name):
 @cli.command()
 @click.option('--name', default=None, help='Migration name')
 @click.option('--comment', default=None, help='Comment text for migration.')
-@click.pass_context
-def generate(ctx, name=None, comment=None):
+def generate(name=None, comment=None):
     """
     Generate a new database migration file
     """
