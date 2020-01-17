@@ -4,9 +4,9 @@ from os import makedirs, errno, getcwd
 from glob import glob
 from mako.template import Template
 from sys import path
-from traceback import print_exc
 from sys import stdout
 from importlib import import_module
+import logging
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -35,10 +35,10 @@ class MigrationRunner(object):
         """
         Run the upgrade action of one or all migrations. Specify `NAME` for upgrading one migration. 
         """
-        self.run_migrations('upgrade', migrate_to=name)
+        return self.run_migrations('upgrade', migrate_to=name)
 
     def downgrade(self, name):
-        self.run_migrations('downgrade', 'Downgrading migration', 'REMOVED', migrate_to=name, reverse=True)
+        return self.run_migrations('downgrade', 'Downgrading migration', 'REMOVED', migrate_to=name, reverse=True)
     
 
     def get_migrations(self):
@@ -63,8 +63,11 @@ class MigrationRunner(object):
         return args
 
     def run_migrations(self, action, message='Applying migration', status='APPLIED', migrate_to=None, reverse=False):
+        result = {
+            'error': [],
+            'success': [],
+        }
         migrations = self.get_migrations()
-        print('-'*60)
 
         # handle downgrades
         if reverse:
@@ -72,16 +75,14 @@ class MigrationRunner(object):
 
         # handle individual migrations
         if migrate_to and migrate_to not in migrations:
-            print('Error: The migration {} was not found in the list of migrations. No actions were completed'.format(migrate_to))
-            print('Available migrations are: {}'.format(' ,'.join(migrations)))
+            logging.warning('Error: The migration {} was not found in the list of migrations. No actions were completed'.format(migrate_to))
+            logging.warning('Available migrations are: {}'.format(' ,'.join(migrations)))
             return
-        print('Found migrations: ', migrations)
+        logging.info('Found migrations:\n\t{}'.format('\n\t'.join(migrations)))
         if migrate_to:
-            print('Migration name was passed, migration will stop after completing {}'.format(migrate_to))
+            logging.info('Migration name was passed, migration will stop after completing {}'.format(migrate_to))
 
         for m in migrations:
-            print('-'*60)
-
             # get or create a migration orm object
             current_migration = self.session.query(Migration).filter_by(name=m).first()
             if not current_migration:
@@ -89,10 +90,10 @@ class MigrationRunner(object):
 
             # skip if it the status is already upgraded
             if current_migration.status == status:
-                print('Skipped migration {}. Already been set to {}'.format(m, status))
+                logging.info('Skipped migration {}. Already been set to {}'.format(m, status))
                 continue
             
-            print('{} {}...'.format(message, m))
+            logging.info('{} {}...'.format(message, m))
             
             # import it and run it
             try:
@@ -101,22 +102,25 @@ class MigrationRunner(object):
                 if fn:
                     args = self.get_migration_args(fn)
                     fn(**args)
-            except:
-                print_exc(file=stdout)
-                print('Error while executing migration {}!'.format(m))
+            except Exception as e:
+                result['error'].append(m)
+                logging.traceback.print_exc(file=stdout)
+                logging.error('Error while executing migration {}!'.format(m))
                 break
 
             # update database of migrations
             current_migration.status = status;
             self.session.add(current_migration)
             self.session.commit()
-            print('Migration was successful.')
+            result['success'].append(m)
+            logging.info('Migration was successful.')
 
             if migrate_to and current_migration.name == migrate_to:
-                print('Migration has finished to {}. Migration process will now complete.'.format(migrate_to))
+                logging.info('Migration has finished to {}. Migration process will now complete.'.format(migrate_to))
                 break
 
-        print('-'*60)
-        print('Committing migration updates...')
+        logging.info('Committing migration updates...')
         self.session.commit()
-        print('Migration complete')
+        logging.info('Migration complete')
+
+        return result

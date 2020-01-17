@@ -1,4 +1,5 @@
 import click
+import logging
 from importlib import import_module
 from os.path import join
 from sys import path
@@ -20,23 +21,25 @@ CONTEXT={
 }
 
 @click.group(context_settings=CONTEXT)
-def main():
-    pass
+@click.option('--log', default='ERROR', help='Set the log level. DEBUG, INFO, WARNING, ERROR.')
+def cli(log):
+    level = getattr(logging, log.upper())
+    logging.basicConfig(level=level)
 
 
-@main.group('db', context_settings=CONTEXT)
+@cli.group('db', context_settings=CONTEXT)
 @click.pass_context
 def db(ctx):
     """
     Run database commands: upgrade, downgrade.
     """
-    print('Importing database env...')
+    logging.info('Importing database env...')
     env = import_module('env')
     db = getattr(env, 'DB_CONNECTION_URL', DEFAULT_MIGRATIONS_DB)
 
     # set the migrations context variable for the next command 
     ctx.obj['MIGRATIONS'] = MigrationRunner(env, db, WORKING_DIR)
-    print('Database env imported')
+    logging.info('Database env imported')
 
 
 @db.command()
@@ -47,7 +50,8 @@ def upgrade(ctx, name):
     Run the upgrade action of one or all migrations. Specify `NAME` for upgrading one migration. 
     """
     migrations = ctx.obj['MIGRATIONS']
-    migrations.upgrade(name)
+    result = migrations.upgrade(name)
+    exit(len(result['error']))
 
 
 @db.command()
@@ -58,14 +62,18 @@ def downgrade(ctx, name):
     Run the downgrade action of one or all migrations. Specify `NAME` for downgrading one migration. 
     """
     migrations = ctx.obj['MIGRATIONS']
-    migrations.downgrade(name)
+    result = migrations.downgrade(name)
+    exit(len(result['error']))
 
 
 
-@main.command()
+@cli.command()
 @click.argument('name')
 @click.pass_context
 def generate(ctx, name):
+    """
+    Generate a new database migration item in the local ./migrations folder. 
+    """
     comment = click.prompt('Comment')
     author = environ.get('USER') or environ.get('USERNAME')
     generate_migration(WORKING_DIR, name, {
@@ -73,9 +81,8 @@ def generate(ctx, name):
         'author': author,
     })
 
-cli = click.CommandCollection(sources=[main])
 if __name__ == '__main__':
-    print('dbgrate: Current working directory is {}'.format(WORKING_DIR))
+    logging.info('dbgrate: Current working directory is {}'.format(WORKING_DIR))
     init_migrations(WORKING_DIR)
 
     # create cli with context

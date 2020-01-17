@@ -3,6 +3,7 @@ from os import makedirs
 from os.path import dirname, join, exists, isdir, realpath
 from mako.template import Template
 from datetime import datetime
+import logging
 
 from .constants import PACKAGE_DIR
 
@@ -11,16 +12,16 @@ def init_migrations(workspace):
     Initialize working directory with python package and migrations folder
     """
     if not isdir(join(workspace, 'migrations')):
-        print('Initializing migrations directory...')
+        logging.info('Initializing migrations directory...')
         try:
             makedirs(join(workspace, 'migrations'))
         except Exception as e:
-            print('Error initializing migrations:')
-            print(e)
+            logging.info('Error initializing migrations:')
+            logging.info(e)
 
     # create init.py
     if not exists(join(workspace, 'migrations', '__init__.py')):
-        print('Initializing __init__.py migrations package...')
+        logging.info('Initializing __init__.py migrations package...')
         template_path = join(PACKAGE_DIR, 'templates', '__init__.py.mako')
         with open(template_path, 'r') as f:
             template = f.read()
@@ -37,7 +38,7 @@ def generate_migration(workspace, name, data={}):
 
     timestamp = str(datetime.now().timestamp()).replace('.', '_')
     file_name = '{}_{}.py'.format(timestamp, name.replace('.', '_'))
-    print('generating migration migrations/{}'.format(file_name))
+    logging.info('generating migration migrations/{}'.format(file_name))
 
     # get the template content
     template_path = join(dirname(realpath(__file__)), 'templates', 'migration.py.mako')
