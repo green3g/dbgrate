@@ -37,7 +37,7 @@ def generate_migration(workspace, name, data={}):
 
 
     timestamp = str(datetime.now().timestamp()).replace('.', '_')
-    file_name = '{}_{}.py'.format(timestamp, name.replace('.', '_'))
+    file_name = '{}_{}.py'.format(timestamp, name.replace('.', '_').replace(' ', '_').lower())
     logging.info('generating migration migrations/{}'.format(file_name))
 
     # get the template content

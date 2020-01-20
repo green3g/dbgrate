@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='dbgrate',
     author='roemhildtg',
-    version='0.14',
+    version='0.15.1',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
