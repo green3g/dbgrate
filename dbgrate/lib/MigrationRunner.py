@@ -106,9 +106,21 @@ class MigrationRunner(object):
                     args = self.get_migration_args(fn)
                     fn(**args)
             except Exception:
-                result['error'].append(m)
+                result['error'].append('{} - {}'.format(action, m))
                 logging.traceback.print_exc(file=stdout)
                 logging.error('Error while executing migration {}!'.format(m))
+
+                fn = getattr(i, 'downgrade')
+                if fn:
+                    logging.info('Rolling back migration {}...'.format(m))
+                    args = self.get_migration_args(fn)
+                    try:
+                        fn(**args)
+                    except Exception:
+                        result['error'].append('Downgrade - {}'.format(m))
+                        logging.traceback.print_exc(file=stdout)
+                        logging.error('Error while executing downgrade migration {}!'.format(m))
+                    
                 break
 
             # update database of migrations
