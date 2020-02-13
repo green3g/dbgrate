@@ -33,11 +33,12 @@ class MigrationRunner(object):
         
 
         
-    def upgrade(self, name):
+    def upgrade(self, name, rollback=False):
         """
         Run the upgrade action of one or all migrations. Specify `NAME` for upgrading one migration. 
         """
-        return self.run_migrations('upgrade', migrate_to=name)
+        rollback_action = 'downgrade' if rollback else None
+        return self.run_migrations('upgrade', migrate_to=name, rollback_action=rollback_action)
 
     def downgrade(self, name):
         return self.run_migrations('downgrade', 'Downgrading migration', 'REMOVED', migrate_to=name, reverse=True)
@@ -65,7 +66,7 @@ class MigrationRunner(object):
             
         return args
 
-    def run_migrations(self, action, message='Applying migration', status='APPLIED', migrate_to=None, reverse=False):
+    def run_migrations(self, action, message='Applying migration', status='APPLIED', migrate_to=None, reverse=False, rollback_action=None):
         result = {
             'error': [],
             'success': [],
@@ -110,16 +111,17 @@ class MigrationRunner(object):
                 logging.traceback.print_exc(file=stdout)
                 logging.error('Error while executing migration {}!'.format(m))
 
-                fn = getattr(i, 'downgrade')
-                if fn:
-                    logging.info('Rolling back migration {}...'.format(m))
-                    args = self.get_migration_args(fn)
-                    try:
-                        fn(**args)
-                    except Exception:
-                        result['error'].append('Downgrade - {}'.format(m))
-                        logging.traceback.print_exc(file=stdout)
-                        logging.error('Error while executing downgrade migration {}!'.format(m))
+                if rollback_action:
+                    fn = getattr(i, rollback_action)
+                    if fn:
+                        logging.info('Rolling back migration {}...'.format(m))
+                        args = self.get_migration_args(fn)
+                        try:
+                            fn(**args)
+                        except Exception:
+                            result['error'].append('Downgrade - {}'.format(m))
+                            logging.traceback.print_exc(file=stdout)
+                            logging.error('Error while executing downgrade migration {}!'.format(m))
                     
                 break
 

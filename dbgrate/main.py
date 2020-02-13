@@ -42,12 +42,13 @@ def get_runner():
 
 @db.command()
 @click.option('--name', default=None, help='Upgrade to specific migration version')
-def upgrade(name):
+@click.option('--rollback', default=False, is_flag=True, help='If error occurs, run downgrade method automatically')
+def upgrade(name, rollback):
     """
     Run the upgrade action of one or all migrations. Specify `NAME` for upgrading one migration. 
     """
     migrations = get_runner()
-    result = migrations.upgrade(name)
+    result = migrations.upgrade(name, rollback)
     exit(len(result['error']))
 
 
