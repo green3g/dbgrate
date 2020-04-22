@@ -7,30 +7,31 @@ import logging
 
 from .constants import PACKAGE_DIR
 
-def init_migrations(workspace):
+def init_migrations(workspace, folder='migrations'):
     """
     Initialize working directory with python package and migrations folder
     """
-    if not isdir(join(workspace, 'migrations')):
+    if not isdir(join(workspace, folder)):
         logging.info('Initializing migrations directory...')
         try:
-            makedirs(join(workspace, 'migrations'))
+            makedirs(join(workspace, folder))
         except Exception as e:
-            logging.info('Error initializing migrations:')
+            logging.info('Error initializing {}:'.format(folder))
             logging.info(e)
 
     # create init.py
-    if not exists(join(workspace, 'migrations', '__init__.py')):
+    if not exists(join(workspace, folder, '__init__.py')):
         logging.info('Initializing __init__.py migrations package...')
         template_path = join(PACKAGE_DIR, 'templates', '__init__.py.mako')
         with open(template_path, 'r') as f:
             template = f.read()
-            with open(join('migrations', '__init__.py'), 'w') as f:
+            with open(join(folder, '__init__.py'), 'w') as f:
                 content = Template(template).render()
                 f.write(content)
 
 
-def generate_migration(workspace, name, data={}):
+
+def generate_migration(name, data={}, template=None):
     """
     Generate a new migrations file. Migrations will be prefixed with a timestamp.
     """
@@ -41,16 +42,16 @@ def generate_migration(workspace, name, data={}):
     logging.info('generating migration migrations/{}'.format(file_name))
 
     # get the template content
-    template_path = join(dirname(realpath(__file__)), 'templates', 'migration.py.mako')
-    with open(template_path, 'r') as f:
-        template = f.read()
+    if template is None:
+        template_path = join(dirname(realpath(__file__)), 'templates', 'migration.py.mako')
+        with open(template_path, 'r') as f:
+            template = Template(f.read())
 
     data['create_date'] = datetime.now().ctime()
 
     # write it to a migration file
     with open(join('migrations', file_name), 'w') as f:
-        content = Template(template).render(**data)
-        f.write(content)
+        f.write(template.render(**data))
 
     logging.info('Created new migration file migrations/{}'.format(file_name))
     return file_name

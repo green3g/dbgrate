@@ -74,7 +74,7 @@ def generate(name=None, comment=None):
     name = name or click.prompt('Migration name')
     comment = comment or click.prompt('Comment')
     author = environ.get('USER') or environ.get('USERNAME')
-    generate_migration(WORKING_DIR, name, {
+    generate_migration(name, {
         'comment': comment,
         'author': author,
     })
