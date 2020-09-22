@@ -1,12 +1,16 @@
 from inspect import getargspec
 from os.path import dirname,  isfile, join, exists, isdir, basename 
-from os import makedirs, errno, getcwd
+from os import makedirs, getcwd
 from glob import glob
 from mako.template import Template
 from sys import path
 from sys import stdout
 from importlib import import_module
 import logging
+try:
+    from os import errno
+except:
+    import errno
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
