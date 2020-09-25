@@ -52,7 +52,7 @@ class MigrationRunner(object):
         """
         return a list of the migrations that can be run 
         """
-        modules = glob(join(self.workspace, "migrations", "*.py"))
+        modules = sorted(glob(join(self.workspace, "migrations", "*.py")))
         migrations = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
 
         return migrations
