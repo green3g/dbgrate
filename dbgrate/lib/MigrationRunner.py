@@ -98,7 +98,7 @@ class MigrationRunner(object):
 
             # skip if it the status is already upgraded
             if current_migration.status == status:
-                logging.info('Skipped migration {}. Already been set to {}'.format(m, status))
+                logging.info('{} skipped. Status: {}'.format(m, status))
                 continue
             
             logging.info('{} {}...'.format(message, m))
